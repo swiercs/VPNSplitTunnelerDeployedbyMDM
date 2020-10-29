@@ -1,7 +1,5 @@
 #!/bin/zsh
 
-set -e
-
 VPNCreatorLog="/Library/Logs/VPNSplitterDeployedByJAMF.log"
 
 #delete existing log file
@@ -54,7 +52,7 @@ EOF
 	echo "Creating Split Tunneler Script"
 	/bin/cat << EOF > /usr/local/bin/vpn_splittunneler.sh
 	#!/bin/zsh
-	set -e
+
 	InputFile="/usr/local/bin/VPNSplitterInput"
 	LogFile="/Library/Logs/VPNSplitter.log"
 
@@ -93,24 +91,29 @@ EOF
 	#if ipsec set routing table for split
 	if [ \`/sbin/ifconfig | /usr/bin/grep -c ipsec\` = "1" ]; then
 		#Get Local Deafult Network Adapter Info
-		defaultadapter=\`/usr/sbin/netstat -rnf inet | /usr/bin/grep "default" | /usr/bin/egrep  -v "ipsec|utun" | /usr/bin/awk -F' ' '{ print \$4 }'\`
-		echo "Default Network Adapter is" \$defaultadapter
+		#defaultadapter=\`/usr/sbin/netstat -rnf inet | /usr/bin/grep "default" | /usr/bin/egrep  -v "ipsec|utun" | /usr/bin/awk -F' ' '{ print \$4 }'\`
+		#echo "Default Network Adapter is" \$defaultadapter
 		
 		#Get Local Gateway Info
 		defaultgateway=\`/usr/sbin/netstat -rnf inet | /usr/bin/grep "default" | /usr/bin/egrep  -v "ipsec|utun" | /usr/bin/awk -F' ' '{ print \$2 }'\`
-		echo "Default Gateway is" \$defaultgateway
+		echo -en "Current Gateways are" \$defaultgateway
+		echo " "
 		
 		#adding split tunnel routes
-		echo "Adding Bypass Routes to Default Network Gateway - Should be Local Gateway not VPN"
-		while read line || [ -n "\$line" ]; do
-		#/sbin/route add \$line -interface \$defaultadapter
-		/sbin/route add \$line -gateway \$defaultgateway
-		done < \$InputFile
-
+		#echo "Adding Bypass Routes to Default Network Gateway - Should be Local Gateway not VPN"
+		for eachgateway in \`echo \$defaultgateway\` ; do 
+			echo -en "\n*********************************\n"
+			echo "Adding Bypass Routes to Default Network Gateway:" \$eachgateway
+			echo -en "*********************************\n"
+			while read line || [ -n "\$line" ]; do
+			/sbin/route add \$line -gateway \$eachgateway
+			done < \$InputFile
+			echo -en "\n "
+		done
 	else
 		echo "Deleting Split Routes - Janitorial Duties"
 		while read line || [ -n "\$line" ]; do
-		/sbin/route delete \$line -interface \$Interface
+		/sbin/route delete \$line
 		done < \$InputFile
 
 	fi
