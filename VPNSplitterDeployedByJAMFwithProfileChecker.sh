@@ -125,6 +125,7 @@ EOF
 	echo "********* End Log ********"
 EOF
 
+	#add ip addresses/blocks that you want to send outside the tunnel below
 	echo "Creating Input File for Split Tunneler Script"
 	/bin/cat << EOF > /usr/local/bin/VPNSplitterInput
 	17.0.0.0/8
