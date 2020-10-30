@@ -17,6 +17,12 @@ echo "*************** Start Log ***************"
 echo "Unloading Existing LaunchDaemon"
 /bin/launchctl unload /Library/LaunchDaemons/vpn.splittunneler.plist
 
+#delete the files if they exist
+echo "Deleteing any existing script files"
+[ -f /Library/LaunchDaemons/vpn.splittunneler.plist ] && rm -f "/Library/LaunchDaemons/vpn.splittunneler.plist"
+[ -f /usr/local/bin/vpn_splittunneler.sh ] && rm -f "/usr/local/bin/vpn_splittunneler.sh"
+[ -f /usr/local/bin/VPNSplitterInput ] && rm -f "/usr/local/bin/VPNSplitterInput"
+
 #Check for VPN Profile Existence
 currentuser=$(/bin/ls -la /dev/console | /usr/bin/cut -d ' ' -f 4)
 echo "Current Logged in User is" $currentuser
